@@ -7,21 +7,34 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
-
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
+public class MainActivity extends AppCompatActivity implements LocationListener{
 
+    private static final String TAG = "MainActivity";
+
+    private Button buttonStartThread;
+    private Button buttonStopThread;
+
+    private Handler mainHandler = new Handler();
+
+    private volatile boolean stopThread = false;
 
     public static final int RequestPermissionCode = 1;
     Context context;
@@ -31,8 +44,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     boolean GpsStatus = false;
     Criteria criteria;
     String Holder;
-    Button btnGet;
-    Switch sw1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,83 +63,157 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         CheckGpsStatus();
 
-        btnGet = (Button)findViewById(R.id.button3);
-
-        sw1 = (Switch)findViewById(R.id.switch1);
-
-
-        btnGet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String str1;
-
-                if (sw1.isChecked()) {
-                    str1 = sw1.getTextOn().toString();
-                    for (int i = 0; i<10000000; i++) {
-
-                        CheckGpsStatus();
-
-                        if (GpsStatus == true) {
-                            if (Holder != null) {
-                                if (ActivityCompat.checkSelfPermission(
-                                        MainActivity.this,
-                                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                                        &&
-                                        ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                                                != PackageManager.PERMISSION_GRANTED) {
-                                    return;
-                                }
-                                location = locationManager.getLastKnownLocation(Holder);
-                                locationManager.requestLocationUpdates(Holder, 12000, 7, MainActivity.this);
-                            }
-                        } else {
-
-                            Toast.makeText(MainActivity.this, "Please Enable GPS First", Toast.LENGTH_LONG).show();
-
-                        }
-
-                        EditText et = (EditText) findViewById(R.id.editText);
-                        String name = et.getText().toString();
-
-                        APIConn apiConn = new APIConn();
-                        double currentLat = location.getLatitude();
-                        double currentLng = location.getLongitude();
-
-                        apiConn.setCurrentLat(String.valueOf(currentLat));
-                        apiConn.setCurrentLng(String.valueOf(currentLng));
-                        apiConn.setusername(name);
-
-
-                        apiConn.getme();
-
-                        try {
-                            TimeUnit.SECONDS.sleep(30);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                        }
-                        Toast.makeText(MainActivity.this, "POSTED", Toast.LENGTH_LONG).show();
-                    }
+        if (GpsStatus == true) {
+            if (Holder != null) {
+                if (ActivityCompat.checkSelfPermission(
+                        MainActivity.this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        &&
+                        ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                != PackageManager.PERMISSION_GRANTED) {
+                    return;
                 }
-
-                else{
-                    str1 = sw1.getTextOff().toString();
-                    Toast.makeText(MainActivity.this, "Updates Stopped", Toast.LENGTH_LONG).show();
-                }
-
-                Toast.makeText(getApplicationContext(), "Switch1 -  " + str1 + " \n", Toast.LENGTH_SHORT).show();
+                location = locationManager.getLastKnownLocation(Holder);
+                locationManager.requestLocationUpdates(Holder, 12000, 7, MainActivity.this);
             }
+        } else {
 
-        });
+            Toast.makeText(MainActivity.this, "Please Enable GPS First", Toast.LENGTH_LONG).show();
+
+        }
+
+        buttonStartThread = findViewById(R.id.buttonstart);
+        buttonStopThread = findViewById(R.id.buttonstop);
+
+
+    }
+
+    public void startThread(View view) {
+        stopThread = false;
+
+        Toast.makeText(MainActivity.this, "STARTED", Toast.LENGTH_LONG).show();
+        buttonStartThread.setBackgroundColor(Color.rgb(76,175,80));
+        buttonStopThread.setBackgroundColor(Color.rgb(33,150,243));
+        ExampleRunnable runnable = new ExampleRunnable(999999999);
+        new Thread(runnable).start();
+        /*
+        ExampleThread thread = new ExampleThread(10);
+        thread.start();
+        */
+        /*
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //work
+            }
+        }).start();
+        */
+    }
+
+    public void stopThread(View view) {
+        Toast.makeText(MainActivity.this, "STOPPED", Toast.LENGTH_LONG).show();
+        buttonStopThread.setBackgroundColor(Color.rgb(244,67,54));
+        buttonStartThread.setBackgroundColor(Color.rgb(33,150,243));
+        stopThread = true;
+    }
+
+
+    class ExampleThread extends Thread {
+        int seconds;
+
+        ExampleThread(int seconds) {
+            this.seconds = seconds;
+        }
+
+        @Override
+        public void run() {
+            for (int i = 0; i < seconds; i++) {
+                Log.d(TAG, "startThread: " + i);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class ExampleRunnable implements Runnable {
+        int seconds;
+
+        ExampleRunnable(int seconds) {
+            this.seconds = seconds;
+        }
 
 
 
+        @Override
+        public void run() {
+
+            for (int i = 0; i < seconds; i++) {
+
+
+                EditText et = (EditText) findViewById(R.id.editText);
+                String name = et.getText().toString();
+
+                APIConn apiConn = new APIConn();
+                double currentLat = location.getLatitude();
+                double currentLng = location.getLongitude();
+
+                apiConn.setCurrentLat(String.valueOf(currentLat));
+                apiConn.setCurrentLng(String.valueOf(currentLng));
+                apiConn.setusername(name);
+
+
+                apiConn.getme();
+
+                if (stopThread){
+                    return;}
+                if (i == 5) {
+
+
+                    /*
+                    Handler threadHandler = new Handler(Looper.getMainLooper());
+                    threadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            buttonStartThread.setText("50%");
+                        }
+                    });
+                    */
+                    /*
+                    buttonStartThread.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            buttonStartThread.setText("50%");
+                        }
+                    });
+                    */
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+
+                        }
+                    });
+                }
+                Log.d(TAG, "startThread: " + i);
+                try {
+
+
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
-       // textViewLongitude.setText("Longitude:" + location.getLongitude());
-       // textViewLatitude.setText("Latitude:" + location.getLatitude());
+        // textViewLongitude.setText("Longitude:" + location.getLongitude());
+        // textViewLatitude.setText("Latitude:" + location.getLatitude());
 
     }
 
@@ -188,4 +274,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 break;
         }
     }
+    public static String getCurrentTimeStamp(){
+        try {
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentDateTime = dateFormat.format(new Date()); // Find todays date
+
+            return currentDateTime;
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return null;
+        }
+    }
 }
+
+
