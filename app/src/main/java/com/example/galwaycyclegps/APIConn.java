@@ -5,16 +5,20 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.Timestamp;
+
 
 public class APIConn {
 
     String currentLng;
     String currentLat;
     String username;
-
+    String code;
 
     public String getLng(){return currentLng;}
 
@@ -26,9 +30,17 @@ public class APIConn {
 
     public String getLat(){return currentLat;}
 
+
     public void setCurrentLat(String currentLat){
 
         this.currentLat = currentLat;
+
+    }
+
+
+    public void setCode(String code){
+
+        this.code = code;
 
     }
 
@@ -59,12 +71,27 @@ public class APIConn {
                 JSONObject parent = new JSONObject();
                 JSONObject jsonObject = new JSONObject();
                 //Get timestamp
+  /*             try{
+                    URL url2 = new URL("http://132.145.33.66:8080/RESTfulExample/json/product/post");
+                    URLConnection con = url2.openConnection();
+                    con.connect();
 
+                }
+                catch(MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                    Log.i("ERROR", "Failed to connect to server");
+                    setCode("5");
+                }
+
+*/
                 try {
 
-                    String input = "{\n" +" \"long\": \""+getLng()+"\",\n" +
-                            "    \"lat\": \""+getLat()+"\",\n" +
-                            "    \"name\": \""+getusername()+"\"\n" +
+                    String input = "{\n" + " \"long\": \"" + getLng() + "\",\n" +
+                            "    \"lat\": \"" + getLat() + "\",\n" +
+                            "    \"name\": \"" + getusername() + "\"\n" +
                             "}";
 
                     jsonObject.put("lat", currentLat);
@@ -87,12 +114,36 @@ public class APIConn {
                     os.flush();
                     os.close();
 
+                    String status = String.valueOf(conn.getResponseCode());
+
+                    Integer respoonseCode = conn.getResponseCode();
+
+                    if (respoonseCode == HttpURLConnection.HTTP_CREATED){
+                        Log.i("STATUS0", status);
+                    setCode("0");
+                     }
+
+/*
+                    if (status.equals("201") == true){
+                        Log.i("CODE", status);
+                        setCode("1");
+                    }
+
+                    if (status.equals("201") == false || status == null){
+                        Log.i("CODE", status);
+                        setCode("0");
+                    }
+*/
+
+                    //Log.i("STATUSwow", getCode());
                     Log.i("STATUS", String.valueOf(conn.getResponseCode()));
                     Log.i("MSG", conn.getResponseMessage());
 
                     conn.disconnect();
                 } catch (Exception e) {
                     e.printStackTrace();
+
+
                 }
 
 
@@ -101,5 +152,7 @@ public class APIConn {
 
         thread.start();
     }
+    public String getCode(){
+        return code;}
 }
 

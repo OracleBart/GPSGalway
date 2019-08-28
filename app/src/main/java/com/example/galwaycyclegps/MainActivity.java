@@ -20,12 +20,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
+
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements LocationListener{
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     private static final String TAG = "MainActivity";
 
@@ -44,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     boolean GpsStatus = false;
     Criteria criteria;
     String Holder;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,10 +90,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
     public void startThread(View view) {
         stopThread = false;
+        Log.i("PRESSED", "START");
 
         Toast.makeText(MainActivity.this, "STARTED", Toast.LENGTH_LONG).show();
-        buttonStartThread.setBackgroundColor(Color.rgb(76,175,80));
-        buttonStopThread.setBackgroundColor(Color.rgb(33,150,243));
+        buttonStartThread.setBackgroundColor(Color.rgb(76, 175, 80));
+        buttonStopThread.setBackgroundColor(Color.rgb(33, 150, 243));
         ExampleRunnable runnable = new ExampleRunnable(999999999);
         new Thread(runnable).start();
         /*
@@ -111,9 +112,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     }
 
     public void stopThread(View view) {
+        Log.i("PRESSED", "STOP");
         Toast.makeText(MainActivity.this, "STOPPED", Toast.LENGTH_LONG).show();
-        buttonStopThread.setBackgroundColor(Color.rgb(244,67,54));
-        buttonStartThread.setBackgroundColor(Color.rgb(33,150,243));
+        buttonStopThread.setBackgroundColor(Color.rgb(244, 67, 54));
+        buttonStartThread.setBackgroundColor(Color.rgb(33, 150, 243));
         stopThread = true;
     }
 
@@ -146,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         }
 
 
-
         @Override
         public void run() {
 
@@ -164,11 +165,39 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 apiConn.setCurrentLng(String.valueOf(currentLng));
                 apiConn.setusername(name);
 
-
                 apiConn.getme();
 
-                if (stopThread){
-                    return;}
+                try {
+
+
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                String threadCode = String.valueOf(apiConn.getCode());
+/*
+
+                if ( threadCode.equals("0") == true) {
+
+                    Log.i("Result", "Sending to Server");
+
+                }
+
+
+
+                if ( threadCode.equals("5") == true) {
+
+                    Log.i("Result", "Some Error Sending");
+
+                    buttonStopThread.setBackgroundColor(Color.rgb(244, 67, 54));
+                    buttonStartThread.setBackgroundColor(Color.rgb(33, 150, 243));
+                    stopThread = true;
+                    return;
+                }
+*/
+                if (stopThread) {
+                    return;
+                }
                 if (i == 5) {
 
 
@@ -193,14 +222,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                         @Override
                         public void run() {
 
-
                         }
                     });
                 }
                 Log.d(TAG, "startThread: " + i);
                 try {
-
-
                     Thread.sleep(30000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -274,7 +300,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 break;
         }
     }
-    public static String getCurrentTimeStamp(){
+
+    public static String getCurrentTimeStamp() {
         try {
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
