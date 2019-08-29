@@ -71,7 +71,7 @@ public class APIConn {
                 JSONObject parent = new JSONObject();
                 JSONObject jsonObject = new JSONObject();
                 //Get timestamp
-  /*             try{
+             try{
                     URL url2 = new URL("http://132.145.33.66:8080/RESTfulExample/json/product/post");
                     URLConnection con = url2.openConnection();
                     con.connect();
@@ -86,7 +86,7 @@ public class APIConn {
                     setCode("5");
                 }
 
-*/
+
                 try {
 
                     String input = "{\n" + " \"long\": \"" + getLng() + "\",\n" +
@@ -123,7 +123,7 @@ public class APIConn {
                     setCode("0");
                      }
 
-/*
+
                     if (status.equals("201") == true){
                         Log.i("CODE", status);
                         setCode("1");
@@ -133,7 +133,7 @@ public class APIConn {
                         Log.i("CODE", status);
                         setCode("0");
                     }
-*/
+
 
                     //Log.i("STATUSwow", getCode());
                     Log.i("STATUS", String.valueOf(conn.getResponseCode()));

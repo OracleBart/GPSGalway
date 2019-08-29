@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     e.printStackTrace();
                 }
                 String threadCode = String.valueOf(apiConn.getCode());
-/*
+
 
                 if ( threadCode.equals("0") == true) {
 
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     stopThread = true;
                     return;
                 }
-*/
+
                 if (stopThread) {
                     return;
                 }
